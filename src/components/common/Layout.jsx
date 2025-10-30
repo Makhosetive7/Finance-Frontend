@@ -1,26 +1,26 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Header } from './Header';
-import { Footer } from './Footer';
+import React from "react";
+import styled from "styled-components";
+import { Header } from "./Header";
 
-const LayoutContainer = styled.div`
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: ${({ theme }) => theme.background.primary};
-`;
-
-const Main = styled.main`
-  flex: 1;
-  padding: 2rem 0;
-`;
-
-export const Layout = ({ children }) => {
+export const Layout = ({ children, theme, toggleTheme }) => {
   return (
     <LayoutContainer>
-      <Header />
-      <Main>{children}</Main>
-      <Footer />
+      <Header theme={theme} toggleTheme={toggleTheme} />
+      <MainContent>{children}</MainContent>
     </LayoutContainer>
   );
 };
+
+const LayoutContainer = styled.div`
+  min-height: 100vh;
+  background: ${({ theme }) => theme.background.primary};
+  color: ${({ theme }) => theme.text.primary};
+  transition: all 0.3s ease;
+`;
+
+const MainContent = styled.main`
+  min-height: calc(100vh - 70px);
+  padding-top: 0;
+`;
+
+export default Layout;

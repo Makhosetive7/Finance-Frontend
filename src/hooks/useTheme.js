@@ -9,7 +9,6 @@ export const useTheme = () => {
   useEffect(() => {
     localStorage.setItem('darkTheme', JSON.stringify(isDark));
     
-    // Update document class for global styles
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {

@@ -1,170 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Card } from '../components/common/Card';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { forexAPI } from '../services/api';
-import { FaExchangeAlt, FaCalculator, FaGlobe } from 'react-icons/fa';
-
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: 1fr 1fr;
-  
-  @media (max-width: 968px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ConverterCard = styled(Card)`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-`;
-
-const ConverterTitle = styled.h3`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  color: white;
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const CurrencyInput = styled.input`
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: right;
-
-  &:focus {
-    outline: none;
-    background: white;
-  }
-`;
-
-const CurrencySelect = styled.select`
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 600;
-  min-width: 100px;
-
-  &:focus {
-    outline: none;
-    background: white;
-  }
-`;
-
-const ExchangeRate = styled.div`
-  text-align: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-`;
-
-const RateText = styled.p`
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
-`;
-
-const RateValue = styled.p`
-  font-size: 1.5rem;
-  font-weight: 700;
-`;
-
-const PairsGrid = styled.div`
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-`;
-
-const PairCard = styled(Card)`
-  text-align: center;
-  padding: 1.5rem;
-`;
-
-const PairName = styled.h4`
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: ${({ theme }) => theme.text.primary};
-`;
-
-const PairRate = styled.div`
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: ${({ theme }) => theme.primary};
-`;
-
-const RatesTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-`;
-
-const TableHeader = styled.th`
-  text-align: left;
-  padding: 1rem;
-  border-bottom: 2px solid ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.text.secondary};
-  font-weight: 600;
-`;
-
-const TableCell = styled.td`
-  padding: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-`;
-
-const CurrencyFlag = styled.span`
-  font-size: 1.2rem;
-  margin-right: 0.5rem;
-`;
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { Card } from "../components/common/Card";
+import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import { forexAPI } from "../services/api";
+import {
+  FaExchangeAlt,
+  FaCalculator,
+  FaGlobe,
+  FaSyncAlt,
+} from "react-icons/fa";
 
 const getCurrencySymbol = (currency) => {
   const symbols = {
-    USD: '🇺🇸',
-    EUR: '🇪🇺',
-    GBP: '🇬🇧',
-    JPY: '🇯🇵',
-    CAD: '🇨🇦',
-    AUD: '🇦🇺',
-    CHF: '🇨🇭',
-    CNY: '🇨🇳',
-    SEK: '🇸🇪',
-    NZD: '🇳🇿'
+    USD: "🇺🇸",
+    EUR: "🇪🇺",
+    GBP: "🇬🇧",
+    JPY: "🇯🇵",
+    CAD: "🇨🇦",
+    AUD: "🇦🇺",
+    CHF: "🇨🇭",
+    CNY: "🇨🇳",
+    SEK: "🇸🇪",
+    NZD: "🇳🇿",
+    NOK: "🇳🇴",
+    DKK: "🇩🇰",
+    SGD: "🇸🇬",
+    HKD: "🇭🇰",
+    KRW: "🇰🇷",
+    INR: "🇮🇳",
+    BRL: "🇧🇷",
+    RUB: "🇷🇺",
+    ZAR: "🇿🇦",
+    MXN: "🇲🇽",
   };
-  return symbols[currency] || '💵';
+  return symbols[currency] || "💵";
+};
+
+const getCurrencyName = (currency) => {
+  const names = {
+    USD: "US Dollar",
+    EUR: "Euro",
+    GBP: "British Pound",
+    JPY: "Japanese Yen",
+    CAD: "Canadian Dollar",
+    AUD: "Australian Dollar",
+    CHF: "Swiss Franc",
+    CNY: "Chinese Yuan",
+    SEK: "Swedish Krona",
+    NZD: "New Zealand Dollar",
+  };
+  return names[currency] || currency;
 };
 
 export const Forex = () => {
   const [forexRates, setForexRates] = useState(null);
   const [majorPairs, setMajorPairs] = useState([]);
   const [converterData, setConverterData] = useState({
-    from: 'USD',
-    to: 'EUR',
+    from: "USD",
+    to: "EUR",
     amount: 1,
     converted: 0,
-    rate: 0
+    rate: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     fetchForexData();
@@ -177,13 +77,38 @@ export const Forex = () => {
     }
   }, [converterData.from, converterData.to, converterData.amount, forexRates]);
 
+  const formatRate = (rate) => {
+    if (!rate || isNaN(rate) || !isFinite(rate)) return "0.000000";
+    return rate.toFixed(6);
+  };
+
+  const formatAmount = (amount) => {
+    if (!amount || isNaN(amount) || !isFinite(amount)) return "0.00";
+    return amount.toFixed(2);
+  };
+
+  const getSafeValue = (value, fallback = 0) => {
+    if (
+      value === null ||
+      value === undefined ||
+      isNaN(value) ||
+      !isFinite(value)
+    ) {
+      return fallback;
+    }
+    return value;
+  };
+
   const fetchForexData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await forexAPI.getForexRates();
       setForexRates(response.data);
+      setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error fetching forex data:', error);
+      console.error("Error fetching forex data:", error);
+      setError("Failed to fetch exchange rates. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -192,9 +117,10 @@ export const Forex = () => {
   const fetchMajorPairs = async () => {
     try {
       const response = await forexAPI.getMajorPairs();
-      setMajorPairs(response.data);
+      setMajorPairs(response.data || []);
     } catch (error) {
-      console.error('Error fetching major pairs:', error);
+      console.error("Error fetching major pairs:", error);
+      setMajorPairs([]);
     }
   };
 
@@ -207,136 +133,423 @@ export const Forex = () => {
         converterData.to,
         converterData.amount
       );
-      
+
       const result = response.data;
-      setConverterData(prev => ({
+      setConverterData((prev) => ({
         ...prev,
-        converted: result.converted_amount,
-        rate: result.rate
+        converted: getSafeValue(result.converted_amount),
+        rate: getSafeValue(result.rate),
       }));
     } catch (error) {
-      console.error('Error converting currency:', error);
+      console.error("Error converting currency:", error);
+      setConverterData((prev) => ({
+        ...prev,
+        converted: 0,
+        rate: 0,
+      }));
     }
   };
 
   const updateConverterField = (field, value) => {
-    setConverterData(prev => ({
+    setConverterData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: field === "amount" ? getSafeValue(parseFloat(value), 0) : value,
     }));
   };
 
-  if (loading) {
+  const handleRefresh = () => {
+    fetchForexData();
+    fetchMajorPairs();
+  };
+
+  if (loading && !forexRates) {
     return <LoadingSpinner />;
   }
 
   return (
     <Container>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+
       <Grid>
         <ConverterCard>
-          <ConverterTitle>
-            <FaCalculator />
-            Currency Converter
-          </ConverterTitle>
-          
-          <InputGroup>
-            <CurrencyInput
-              type="number"
-              value={converterData.amount}
-              onChange={(e) => updateConverterField('amount', parseFloat(e.target.value) || 0)}
-              min="0"
-              step="0.01"
-            />
-            <CurrencySelect
-              value={converterData.from}
-              onChange={(e) => updateConverterField('from', e.target.value)}
-            >
-              {forexRates && Object.keys(forexRates.rates).map(currency => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
-            </CurrencySelect>
-          </InputGroup>
-
-          <div style={{ textAlign: 'center', margin: '1rem 0', fontSize: '1.5rem' }}>
-            <FaExchangeAlt />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <ConverterTitle>
+              <FaCalculator />
+              Currency Converter
+            </ConverterTitle>
+            <RefreshButton onClick={handleRefresh} title="Refresh rates">
+              <FaSyncAlt />
+              Refresh
+            </RefreshButton>
           </div>
 
           <InputGroup>
             <CurrencyInput
               type="number"
-              value={converterData.converted}
+              value={converterData.amount}
+              onChange={(e) => updateConverterField("amount", e.target.value)}
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+            <CurrencySelect
+              value={converterData.from}
+              onChange={(e) => updateConverterField("from", e.target.value)}
+            >
+              {forexRates &&
+                Object.keys(forexRates.rates || {}).map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
+            </CurrencySelect>
+          </InputGroup>
+
+          <ExchangeIcon>
+            <FaExchangeAlt />
+          </ExchangeIcon>
+
+          <InputGroup>
+            <CurrencyInput
+              type="number"
+              value={formatAmount(converterData.converted)}
               readOnly
-              style={{ background: 'rgba(255, 255, 255, 0.7)' }}
+              style={{ background: "rgba(255, 255, 255, 0.7)" }}
+              placeholder="0.00"
             />
             <CurrencySelect
               value={converterData.to}
-              onChange={(e) => updateConverterField('to', e.target.value)}
+              onChange={(e) => updateConverterField("to", e.target.value)}
             >
-              {forexRates && Object.keys(forexRates.rates).map(currency => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
+              {forexRates &&
+                Object.keys(forexRates.rates || {}).map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
             </CurrencySelect>
           </InputGroup>
 
           <ExchangeRate>
             <RateText>Exchange Rate</RateText>
-            <RateValue>1 {converterData.from} = {converterData.rate?.toFixed(6)} {converterData.to}</RateValue>
+            <RateValue>
+              1 {converterData.from} = {formatRate(converterData.rate)}{" "}
+              {converterData.to}
+            </RateValue>
+            {lastUpdated && (
+              <LastUpdated>
+                Updated: {lastUpdated.toLocaleTimeString()}
+              </LastUpdated>
+            )}
           </ExchangeRate>
         </ConverterCard>
 
-        <Card title="Major Forex Pairs">
-          <PairsGrid>
-            {majorPairs.map((pair) => (
-              <PairCard key={pair.pair} hover>
-                <PairName>{pair.pair}</PairName>
-                <PairRate>{pair.rate?.toFixed(4)}</PairRate>
-                <div style={{ fontSize: '0.9rem', color: '#64748b' }}>
-                  Last updated
-                </div>
-              </PairCard>
-            ))}
-          </PairsGrid>
+        <Card>
+          <ConverterTitle style={{ color: "inherit", marginBottom: "1rem" }}>
+            <FaGlobe />
+            Major Forex Pairs
+          </ConverterTitle>
+
+          {majorPairs.length > 0 ? (
+            <PairsGrid>
+              {majorPairs.slice(0, 6).map((pair) => (
+                <PairCard key={pair.pair} hover>
+                  <PairName>{pair.pair}</PairName>
+                  <PairRate>{formatRate(getSafeValue(pair.rate))}</PairRate>
+                  {pair.change && (
+                    <PairChange $positive={getSafeValue(pair.change) > 0}>
+                      {getSafeValue(pair.change) > 0 ? "+" : ""}
+                      {getSafeValue(pair.change).toFixed(4)}
+                    </PairChange>
+                  )}
+                </PairCard>
+              ))}
+            </PairsGrid>
+          ) : (
+            <EmptyState>No major pairs data available</EmptyState>
+          )}
         </Card>
       </Grid>
 
       {forexRates && (
-        <Card title="All Exchange Rates" style={{ marginTop: '2rem' }}>
-          <ConverterTitle style={{ color: 'inherit' }}>
-            <FaGlobe />
-            Base Currency: {forexRates.base}
-          </ConverterTitle>
-          
+        <Card style={{ marginTop: "1.5rem" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <ConverterTitle style={{ color: "inherit", margin: 0 }}>
+              <FaGlobe />
+              All Exchange Rates
+            </ConverterTitle>
+            <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+              Base: {forexRates.base || "USD"}
+            </div>
+          </div>
+
           <RatesTable>
             <thead>
               <tr>
                 <TableHeader>Currency</TableHeader>
-                <TableHeader>Symbol</TableHeader>
+                <TableHeader>Name</TableHeader>
                 <TableHeader>Exchange Rate</TableHeader>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(forexRates.rates).map(([currency, rate]) => (
-                <tr key={currency}>
-                  <TableCell>
-                    <CurrencyFlag>
-                      {getCurrencySymbol(currency)}
-                    </CurrencyFlag>
-                    {currency}
-                  </TableCell>
-                  <TableCell>{currency}</TableCell>
-                  <TableCell style={{ fontWeight: 600 }}>
-                    {rate.toFixed(6)}
-                  </TableCell>
-                </tr>
-              ))}
+              {Object.entries(forexRates.rates || {})
+                .slice(0, 20)
+                .map(([currency, rate]) => (
+                  <tr key={currency}>
+                    <TableCell>
+                      <CurrencyFlag>{getCurrencySymbol(currency)}</CurrencyFlag>
+                      {currency}
+                    </TableCell>
+                    <TableCell
+                      style={{ fontSize: "0.85rem", color: "#64748b" }}
+                    >
+                      {getCurrencyName(currency)}
+                    </TableCell>
+                    <TableCell
+                      style={{ fontWeight: 600, fontFamily: "monospace" }}
+                    >
+                      {formatRate(getSafeValue(rate))}
+                    </TableCell>
+                  </tr>
+                ))}
             </tbody>
           </RatesTable>
+
+          {Object.keys(forexRates.rates || {}).length > 20 && (
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "1rem",
+                fontSize: "0.85rem",
+                color: "#64748b",
+              }}
+            >
+              Showing 20 of {Object.keys(forexRates.rates || {}).length}{" "}
+              currencies
+            </div>
+          )}
         </Card>
       )}
     </Container>
   );
 };
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ConverterCard = styled(Card)`
+  background: ${({ theme }) => theme.gradients.primary};
+  color: white;
+  position: relative;
+  overflow: hidden;
+`;
+
+const ConverterTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+`;
+
+const CurrencyInput = styled.input`
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: right;
+
+  &:focus {
+    outline: none;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  }
+`;
+
+const CurrencySelect = styled.select`
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 90px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    background: white;
+  }
+`;
+
+const ExchangeIcon = styled.div`
+  text-align: center;
+  margin: 0.5rem 0;
+  font-size: 1.2rem;
+  opacity: 0.8;
+`;
+
+const ExchangeRate = styled.div`
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+`;
+
+const RateText = styled.p`
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-bottom: 0.4rem;
+`;
+
+const RateValue = styled.p`
+  font-size: 1.2rem;
+  font-weight: 700;
+`;
+
+const PairsGrid = styled.div`
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+`;
+
+const PairCard = styled(Card)`
+  text-align: center;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+`;
+
+const PairName = styled.h4`
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: ${({ theme }) => theme.text.primary};
+  font-size: 0.9rem;
+`;
+
+const PairRate = styled.div`
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: ${({ theme }) => theme.primary};
+`;
+
+const PairChange = styled.div`
+  font-size: 0.8rem;
+  color: ${({ theme, $positive }) =>
+    $positive ? theme.success : theme.danger};
+  font-weight: 600;
+`;
+
+const RatesTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+`;
+
+const TableHeader = styled.th`
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 2px solid ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.text.secondary};
+  font-weight: 600;
+  font-size: 0.85rem;
+`;
+
+const TableCell = styled.td`
+  padding: 0.75rem;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  font-size: 0.9rem;
+`;
+
+const CurrencyFlag = styled.span`
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+`;
+
+const ErrorMessage = styled.div`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+`;
+
+const RefreshButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+`;
+
+const LastUpdated = styled.div`
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.text.secondary};
+  margin-top: 0.25rem;
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: ${({ theme }) => theme.text.secondary};
+  font-size: 0.9rem;
+`;

@@ -25,7 +25,7 @@ export const stocksAPI = {
 
 // Forex endpoints
 export const forexAPI = {
-  getForexRates: () => api.get('/forex/rates'),
+  getForexRates: () => api.get('/forex/'),
   convertCurrency: (from, to, amount) => api.get(`/forex/convert?from=${from}&to=${to}&amount=${amount}`),
   getMajorPairs: () => api.get('/forex/major-pairs'),
 };

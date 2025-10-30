@@ -7,7 +7,6 @@ export const formatCurrency = (value, currency = 'USD') => {
   }).format(value);
 };
 
-// Format large numbers (millions, billions)
 export const formatLargeNumber = (num) => {
   if (num >= 1000000000) {
     return (num / 1000000000).toFixed(2) + 'B';
@@ -27,7 +26,6 @@ export const formatPercent = (value) => {
   return `${num > 0 ? '+' : ''}${num.toFixed(2)}%`;
 };
 
-// Get color based on value (positive/negative)
 export const getValueColor = (value, theme) => {
   const num = parseFloat(value);
   if (num > 0) return theme.success;
@@ -35,7 +33,6 @@ export const getValueColor = (value, theme) => {
   return theme.text.secondary;
 };
 
-// Debounce function for search
 export const debounce = (func, wait) => {
   let timeout;
   return function executedFunction(...args) {
